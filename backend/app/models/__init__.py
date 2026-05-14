@@ -12,7 +12,17 @@ class User(Base):
     role = Column(Enum("user", "admin", name="user_role"), default="user")
 
     recipes = relationship("Recipe", back_populates="owner")
+    meal_plans = relationship("MealPlan", back_populates="user")
+class MealPlan(Base):
+    __tablename__ = "meal_plans"
 
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    recipe_id = Column(Integer, ForeignKey("recipes.id"))
+    day_of_week = Column(Enum("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday", name="day_of_week"))
+
+    user = relationship("User", back_populates="meal_plans")
+    recipe = relationship("Recipe")
 class Recipe(Base):
     __tablename__ = "recipes"
 
@@ -44,3 +54,4 @@ class RecipeIngredient(Base):
 
     recipe = relationship("Recipe", back_populates="ingredients")
     ingredient = relationship("Ingredient", back_populates="recipes")
+    
