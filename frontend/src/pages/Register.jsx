@@ -23,59 +23,55 @@ export default function Register() {
   };
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center" style={{background: 'linear-gradient(135deg, #FFF3B0, #FFFDF4)'}}>
-      <div className="w-100" style={{maxWidth: '420px', padding: '20px'}}>
-        <div className="auth-card">
-          <div className="auth-header">
-            <div style={{fontSize: '3rem'}}>🍳</div>
-            <h2 className="fw-bold mb-0">Join MealMind</h2>
-            <p className="mb-0 mt-1">Start planning your meals!</p>
+    <div className="auth-wrapper">
+      <div className="auth-card">
+        <div className="auth-logo">🧠</div>
+        <div className="auth-title">Create account</div>
+        <div className="auth-subtitle">Start planning your meals today</div>
+
+        {error && (
+          <div style={{background: '#FFF0F0', border: '1px solid #FFDDDD', color: '#CC4444', padding: '10px 14px', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '16px'}}>
+            {error}
           </div>
-          <div className="p-4">
-            {error && <div className="alert alert-danger rounded-3">{error}</div>}
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label className="form-label fw-semibold">Username</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label fw-semibold">Email</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="form-label fw-semibold">Password</label>
-                <input
-                  type="password"
-                  className="form-control"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <button type="submit" className="btn btn-primary-yellow w-100" disabled={loading}>
-                {loading ? 'Creating account...' : 'Create Account 🎉'}
-              </button>
-            </form>
-            <p className="text-center mt-3 mb-0">
-              Already have account? <Link to="/login" style={{color: 'var(--yellow-dark)', fontWeight: '600'}}>Login here</Link>
-            </p>
-          </div>
-        </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <label className="form-label-clean">Username</label>
+          <input
+            type="text"
+            className="form-input-clean"
+            placeholder="your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <label className="form-label-clean">Email</label>
+          <input
+            type="email"
+            className="form-input-clean"
+            placeholder="your@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <label className="form-label-clean">Password</label>
+          <input
+            type="password"
+            className="form-input-clean"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" className="btn-yellow w-100 mt-2" disabled={loading}
+            style={{width: '100%', padding: '11px'}}>
+            {loading ? 'Creating account...' : 'Create account'}
+          </button>
+        </form>
+
+        <p style={{textAlign: 'center', marginTop: '20px', fontSize: '0.875rem', color: 'var(--text-muted)'}}>
+          Already have account? <Link to="/login" style={{color: 'var(--yellow-dark)', fontWeight: '600', textDecoration: 'none'}}>Sign in</Link>
+        </p>
       </div>
     </div>
   );
