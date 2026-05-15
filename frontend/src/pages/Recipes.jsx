@@ -13,7 +13,7 @@ export default function Recipes() {
     cooking_time: '', difficulty: 'easy', calories: ''
   });
   const navigate = useNavigate();
-
+<Link to="/what-i-have" className="btn btn-outline-dark rounded-pill px-3">🧠 What I Have</Link>
   useEffect(() => {
     if (!token) { navigate('/login'); return; }
     fetchRecipes();

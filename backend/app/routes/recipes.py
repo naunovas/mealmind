@@ -5,7 +5,8 @@ from app.db import get_db
 from app.models import Recipe
 from app.schemas.recipe import RecipeCreate, RecipeUpdate, RecipeResponse
 from app.core.dependencies import get_current_user
-
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
 
 @router.get("/", response_model=List[RecipeResponse])
@@ -117,3 +118,31 @@ def delete_recipe(
     db.delete(recipe)
     db.commit()
     return {"message": "Recipe deleted"}
+@router.post("/search-by-ingredients", response_model=List[RecipeResponse])
+def search_by_ingredients(
+    ingredient_names: List[str],
+    db: Session = Depends(get_db)
+):
+    from app.models import Ingredient, RecipeIngredient
+    
+    matched_recipe_ids = set()
+    
+    for name in ingredient_names:
+        ingredients = db.query(Ingredient).filter(
+            Ingredient.name.ilike(f"%{name}%")
+        ).all()
+        
+        for ingredient in ingredients:
+            recipe_ingredients = db.query(RecipeIngredient).filter(
+                RecipeIngredient.ingredient_id == ingredient.id
+            ).all()
+            for ri in recipe_ingredients:
+                matched_recipe_ids.add(ri.recipe_id)
+    
+    if not matched_recipe_ids:
+        return db.query(Recipe).filter(Recipe.is_approved == True).limit(10).all()
+    
+    return db.query(Recipe).filter(
+        Recipe.id.in_(matched_recipe_ids),
+        Recipe.is_approved == True
+    ).all()

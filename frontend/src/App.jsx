@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Recipes from './pages/Recipes';
 import MealPlan from './pages/MealPlan';
 import AdminPanel from './pages/AdminPanel';
+import WhatIHave from './pages/WhatIHave';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/recipes" element={<Recipes />} />
           <Route path="/meal-plan" element={<MealPlan />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/what-i-have" element={<WhatIHave />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
