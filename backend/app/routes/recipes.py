@@ -11,15 +11,14 @@ router = APIRouter(prefix="/recipes", tags=["Recipes"])
 @router.get("/", response_model=List[RecipeResponse])
 def get_all_recipes(
     db: Session = Depends(get_db),
-    search: Optional[str] = Query(None, description="Search by title"),
-    difficulty: Optional[str] = Query(None, description="Filter by difficulty"),
-    max_calories: Optional[int] = Query(None, description="Filter by max calories"),
-    max_cooking_time: Optional[int] = Query(None, description="Filter by max cooking time"),
-    skip: int = Query(0, description="Pagination offset"),
-    limit: int = Query(10, description="Pagination limit")
+    search: Optional[str] = Query(None),
+    difficulty: Optional[str] = Query(None),
+    max_calories: Optional[int] = Query(None),
+    max_cooking_time: Optional[int] = Query(None),
+    skip: int = Query(0),
+    limit: int = Query(10)
 ):
-    query = db.query(Recipe)
-
+    query = db.query(Recipe).filter(Recipe.is_approved == True)
     if search:
         query = query.filter(Recipe.title.ilike(f"%{search}%"))
     if difficulty:
@@ -28,8 +27,16 @@ def get_all_recipes(
         query = query.filter(Recipe.calories <= max_calories)
     if max_cooking_time:
         query = query.filter(Recipe.cooking_time <= max_cooking_time)
-
     return query.offset(skip).limit(limit).all()
+
+@router.get("/pending", response_model=List[RecipeResponse])
+def get_pending_recipes(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admins only")
+    return db.query(Recipe).filter(Recipe.is_approved == False).all()
 
 @router.get("/my", response_model=List[RecipeResponse])
 def get_my_recipes(
@@ -51,11 +58,32 @@ def create_recipe(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    new_recipe = Recipe(**recipe_data.model_dump(), owner_id=current_user.id)
+    is_approved = current_user.role == "admin"
+    new_recipe = Recipe(
+        **recipe_data.model_dump(),
+        owner_id=current_user.id,
+        is_approved=is_approved
+    )
     db.add(new_recipe)
     db.commit()
     db.refresh(new_recipe)
     return new_recipe
+
+@router.put("/{recipe_id}/approve", response_model=RecipeResponse)
+def approve_recipe(
+    recipe_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admins only")
+    recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    recipe.is_approved = True
+    db.commit()
+    db.refresh(recipe)
+    return recipe
 
 @router.put("/{recipe_id}", response_model=RecipeResponse)
 def update_recipe(
@@ -67,12 +95,10 @@ def update_recipe(
     recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
-    if recipe.owner_id != current_user.id:
+    if recipe.owner_id != current_user.id and current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not your recipe")
-
     for key, value in recipe_data.model_dump(exclude_unset=True).items():
         setattr(recipe, key, value)
-
     db.commit()
     db.refresh(recipe)
     return recipe
@@ -86,9 +112,8 @@ def delete_recipe(
     recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
-    if recipe.owner_id != current_user.id:
+    if recipe.owner_id != current_user.id and current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not your recipe")
-
     db.delete(recipe)
     db.commit()
     return {"message": "Recipe deleted"}

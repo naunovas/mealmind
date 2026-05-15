@@ -26,6 +26,7 @@ class RecipeResponse(BaseModel):
     difficulty: Optional[str]
     calories: Optional[int]
     owner_id: int
+    is_approved: bool
 
     class Config:
         from_attributes = True

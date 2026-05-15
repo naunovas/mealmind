@@ -3,6 +3,8 @@ import { AuthProvider } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Recipes from './pages/Recipes';
+import MealPlan from './pages/MealPlan';
+import AdminPanel from './pages/AdminPanel';
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/recipes" element={<Recipes />} />
+          <Route path="/meal-plan" element={<MealPlan />} />
+          <Route path="/admin" element={<AdminPanel />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

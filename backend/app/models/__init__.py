@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Enum, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db import Base
-
+from sqlalchemy import Column, Integer, String, Enum, Text, ForeignKey, Boolean
 class User(Base):
     __tablename__ = "users"
 
@@ -34,6 +34,7 @@ class Recipe(Base):
     difficulty = Column(Enum("easy", "medium", "hard", name="difficulty_level"))
     calories = Column(Integer)
     owner_id = Column(Integer, ForeignKey("users.id"))
+    is_approved = Column(Boolean, default=False)
 
     owner = relationship("User", back_populates="recipes")
     ingredients = relationship("RecipeIngredient", back_populates="recipe")
