@@ -62,7 +62,18 @@ export default function MealPlan() {
 
   const getMealForDay = (day) => mealPlan.find(m => m.day_of_week === day);
   const getRecipeName = (id) => recipes.find(r => r.id === id)?.title || 'Unknown';
-
+const getTotalNutrition = () => {
+  let totalCalories = 0;
+  let totalTime = 0;
+  mealPlan.forEach(meal => {
+    const recipe = recipes.find(r => r.id === meal.recipe_id);
+    if (recipe) {
+      totalCalories += recipe.calories || 0;
+      totalTime += recipe.cooking_time || 0;
+    }
+  });
+  return { totalCalories, totalTime };
+};
   return (
     <div style={{minHeight: '100vh', background: 'var(--bg-cream)'}}>
       <nav className="navbar-mealmind py-3 px-4 d-flex justify-content-between align-items-center">
@@ -78,7 +89,31 @@ export default function MealPlan() {
 
       <div className="container py-4">
         <h3 className="fw-bold mb-4">📅 Weekly Meal Plan</h3>
-
+{mealPlan.length > 0 && (() => {
+  const { totalCalories, totalTime } = getTotalNutrition();
+  return (
+    <div className="recipe-card card p-4 mb-4" style={{background: 'linear-gradient(135deg, #FFF3B0, #FFD93D20)'}}>
+      <h5 className="fw-bold mb-3">📊 Weekly Summary</h5>
+      <div className="row g-3 text-center">
+        <div className="col-4">
+          <div style={{fontSize: '2rem'}}>🍽️</div>
+          <div className="fw-bold fs-4">{mealPlan.length}/7</div>
+          <div className="text-muted small">Meals planned</div>
+        </div>
+        <div className="col-4">
+          <div style={{fontSize: '2rem'}}>🔥</div>
+          <div className="fw-bold fs-4">{totalCalories}</div>
+          <div className="text-muted small">Total calories</div>
+        </div>
+        <div className="col-4">
+          <div style={{fontSize: '2rem'}}>⏱</div>
+          <div className="fw-bold fs-4">{totalTime} min</div>
+          <div className="text-muted small">Total cook time</div>
+        </div>
+      </div>
+    </div>
+  );
+})()}
         {/* Add to plan */}
         <div className="recipe-card card p-4 mb-4">
           <h5 className="fw-bold mb-3">➕ Add to Plan</h5>
